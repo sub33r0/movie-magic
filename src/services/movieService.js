@@ -1,21 +1,38 @@
-const Movie = require('../models/Movie')
+const Movie = require('../models/Movie');
+const Cast = require('../models/Cast');
 
-exports.getAll = () =>  Movie.find();
+exports.getAll = () => Movie.find();
 
-exports.getOne = (movieId) => Movie.findById(movieId);
-
-exports.search =  async (title, genre, year) => {
-    let result = await Movie.find().lean();
+// TODO: Filter result in mongoDB
+exports.search = (title, genre, year) => {
+    let query = {};
 
     if (title) {
-        result = result.filter(movie => movie.title.toLowerCase().includes(title.toLowerCase()))
+        query.title = new RegExp(title, 'i');
     }
+
     if (genre) {
-        result = result.filter(movie => movie.genre.toLowerCase() === genre.toLowerCase())
+        query.genre = genre.toLowerCase();
     }
+
     if (year) {
-        result =result.filter(movie => movie.year === year)
+        query.year = year;
     }
-    return result;
-}
+
+    return Movie.find(query);
+};
+
+exports.getOne = (movieId) => Movie.findById(movieId).populate('casts');
+
 exports.create = (movieData) => Movie.create(movieData);
+
+exports.attach = async (movieId, castId) => {
+    // return Movie.findByIdAndUpdate(movieId, { $push: { casts: castId } });
+    const movie = await this.getOne(movieId);
+
+    movie.casts.push('castId');
+
+    await movie.save();
+
+    return movie;
+}

@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const movieScheme = new mongoose.Schema({
+const movieSchema = new mongoose.Schema({
     title: {
         type: String,
         required: true,
@@ -8,6 +8,7 @@ const movieScheme = new mongoose.Schema({
     genre: {
         type: String,
         required: true,
+        lowercase: true,
     },
     director: {
         type: String,
@@ -17,26 +18,30 @@ const movieScheme = new mongoose.Schema({
         type: Number,
         required: true,
         min: 1900,
-        max: 2030
+        max: 2030,
     },
     rating: {
         type: Number,
         required: true,
         min: 1,
-        max: 5
+        max: 5,
     },
     description: {
         type: String,
         required: true,
-        maxLength: 1000
+        maxLength: 1000,
     },
     imageUrl: {
         type: String,
         required: true,
         match: /^https?:\/\//
     },
+    casts: [{
+        type: mongoose.Types.ObjectId,
+        ref: 'Cast'
+    }]
 });
 
-const Movie = mongoose.model('Movie', movieScheme);
+const Movie = mongoose.model('Movie', movieSchema);
 
 module.exports = Movie;
